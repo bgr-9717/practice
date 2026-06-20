@@ -1,0 +1,63 @@
+name: Deployment to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-actions@v1
+
+        with:
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_SSH_KEY}}
+
+          scripts: |
+            cd ~/practice
+
+            git pull origin main
+
+            docker stop practapp || true
+            docker rm practapp || true
+
+            docker build -t practapp .
+            docker run -d --name practapp \
+            -p 3000:3000 practapp
+
+# name: Deploy to EC2
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Deploy application
+#         uses: appleboy/ssh-action@v1.0.3
+
+#         with:
+#           host: ${{secrets.EC2_HOST}}
+#           username: ${{sectrets.EC2_USER}}
+#           key: ${{secrets.EC2_SSH_KEY}}
+
+#           scripts: |
+#             cd ~/practice
+
+#             git pull origin main
+
+#             docker stop practapp || true
+#             docker rm practapp  || true
+
+#             docker build -name practapp .
+#             docker run -d --name practapp \
+#              -p 3000:3000 practapp
